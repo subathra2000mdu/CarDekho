@@ -1,0 +1,29 @@
+services:
+  # Backend API
+  - type: web
+    name: cardekho-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: "cd server && npm install"
+    startCommand: "cd server && npm start"
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: PORT
+        value: 5000
+
+  # Frontend Web App
+  - type: web
+    name: cardekho-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: "cd client && npm install && npm run build"
+    staticPublishPath: "./client/dist"
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: cardekho-backend
+          envVar: RENDER_EXTERNAL_URL
