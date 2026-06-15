@@ -17,13 +17,12 @@ services:
   - type: web
     name: cardekho-frontend
     env: static
-    region: oregon
     plan: free
     buildCommand: "cd client && npm install && npm run build"
     staticPublishPath: "./client/dist"
     envVars:
-      - key: VITE_API_URL
+      - key: VITE_API_HOST
         fromService:
           type: web
           name: cardekho-backend
-          envVar: RENDER_EXTERNAL_URL
+          property: host
