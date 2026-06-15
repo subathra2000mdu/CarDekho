@@ -698,10 +698,12 @@ const cars = [
   },
 ];
 
-const seedDB = async () => {
+const seedDB = async (isImported = false) => {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/cardekho');
-    console.log('Connected to MongoDB for seeding...');
+    if (!isImported) {
+      await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/cardekho');
+      console.log('Connected to MongoDB for seeding...');
+    }
 
     await Car.deleteMany({});
     console.log('Cleared existing car data.');
@@ -709,13 +711,20 @@ const seedDB = async () => {
     const inserted = await Car.insertMany(cars);
     console.log(`Seeded ${inserted.length} cars successfully!`);
 
-    await mongoose.connection.close();
-    console.log('Database connection closed.');
-    process.exit(0);
+    if (!isImported) {
+      await mongoose.connection.close();
+      console.log('Database connection closed.');
+      process.exit(0);
+    }
   } catch (error) {
     console.error('Seeding error:', error.message);
-    process.exit(1);
+    if (!isImported) process.exit(1);
+    throw error;
   }
 };
 
-seedDB();
+if (require.main === module) {
+  seedDB();
+}
+
+module.exports = { seedDB };
